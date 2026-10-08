@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel del DJ · SongRequest</title>
+  <meta name="description" content="Aprueba, rechaza y ordena las peticiones de canciones en tiempo real.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎛️</text></svg>">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div class="aurora"><span></span><span></span><span></span></div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/admin"><span class="brand-mark" data-icon="music"></span><span>Song<b>Request</b></span></a>
+      <nav class="nav">
+        <a href="/admin" class="active" data-icon="shield"><span>Panel</span></a>
+        <a href="/player" data-icon="headphones"><span>Reproductor</span></a>
+        <a href="/" target="_blank" data-icon="user"><span>Invitados</span></a>
+      </nav>
+      <span class="spacer"></span>
+      <div class="conn" id="conn-status"><span class="dot"></span><span>Conectando…</span></div>
+      <button class="icon-btn" id="logout-btn" title="Cerrar sesión" data-icon="logout"></button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="hidden">Panel del DJ</h1>
+    <section class="admin-top">
+      <div class="card now-card" id="now-card">
+        <div class="now-bg" id="now-bg"></div>
+        <div class="now-inner">
+          <div class="art" id="now-art"></div>
+          <div class="now-meta">
+            <span class="eyebrow" id="now-eyebrow"><span class="eq"><i></i><i></i><i></i><i></i></span> En espera</span>
+            <div class="now-title" id="now-title">Nada sonando</div>
+            <div class="now-artist" id="now-artist"></div>
+            <div class="progress"><div class="progress-fill" id="now-progress"></div></div>
+            <div class="times"><span id="now-elapsed">0:00</span><span id="now-duration">0:00</span></div>
+            <div class="status-line" id="player-status"></div>
+          </div>
+          <div class="controls">
+            <button class="ctrl" id="stop-btn" title="Detener" data-icon="stop"></button>
+            <button class="ctrl main" id="toggle-btn" title="Reproducir / Pausa"></button>
+            <button class="ctrl" id="next-btn" title="Siguiente" data-icon="next"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2 class="card-title" data-icon="sparkles">Ajustes</h2></div>
+        <div class="settings-list">
+          <label class="switch">
+            <input type="checkbox" id="set-open"><span class="track-ui"></span>
+            <span class="switch-text"><strong>Peticiones abiertas</strong><small>Los invitados pueden pedir canciones</small></span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="set-auto"><span class="track-ui"></span>
+            <span class="switch-text"><strong>Auto-aprobar</strong><small>Sin revisión manual</small></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-icon="link">Acceso & Código QR</h2>
+          <span class="spacer"></span>
+          <button class="btn btn-sm btn-ghost" id="open-qr-btn" title="Ver QR en pantalla grande">Ampliar QR</button>
+        </div>
+        <div class="share">
+          <div class="qr interactive" id="qr-thumb-box" title="Clic para ver en grande">
+            <img id="admin-qr-img" src="/qr.svg" alt="Código QR de la vista de invitados">
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="faint" style="font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;">URL del QR para invitados</div>
+            <div class="share-url" id="share-url">…</div>
+            <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-sm" id="copy-btn">Copiar</button>
+              <a href="/" target="_blank" class="btn btn-sm btn-ghost">Abrir UI</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="net-config" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+          <div class="row" style="margin-bottom:6px;">
+            <span class="label" style="font-size:.78rem;font-weight:600;">IP o Host para el QR:</span>
+            <span class="spacer"></span>
+            <button class="link-btn faint" id="reset-ip-btn" type="button" style="font-size:.74rem;background:none;border:none;cursor:pointer;text-decoration:underline;">Automática</button>
+          </div>
+          <div class="row" style="gap:6px;">
+            <input type="text" id="ip-input" class="input" placeholder="Ej: 10.50.16.55" style="height:36px;font-size:.85rem;padding:0 10px;">
+            <button class="btn btn-sm btn-primary" id="save-ip-btn" type="button" style="height:36px;padding:0 14px;">Guardar</button>
+          </div>
+          <div id="detected-ips-wrap" style="margin-top:8px;">
+            <div class="faint" style="font-size:.72rem;margin-bottom:4px;">IPs detectadas en el servidor:</div>
+            <div class="ip-pills" id="detected-ips"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-icon="inbox">Pendientes</h2>
+          <span class="count" id="pending-count">0</span>
+          <span class="spacer"></span>
+          <button class="btn btn-sm" id="approve-all-btn" data-icon="check">Aprobar todas</button>
+        </div>
+        <form id="admin-add" class="row" style="margin-bottom:14px;">
+          <input class="input" id="admin-q" placeholder="Añadir canción (enlace o búsqueda)" style="height:42px;">
+          <button class="icon-btn accent" type="submit" title="Añadir" style="width:42px;height:42px;" data-icon="send"></button>
+        </form>
+        <ul class="track-list scroll-list" id="pending-list"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-icon="list">Cola</h2>
+          <span class="count" id="queue-count">0</span>
+          <span class="spacer"></span>
+          <span class="faint" id="queue-time" style="font-size:.8rem;"></span>
+        </div>
+        <ul class="track-list scroll-list" id="queue-list"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-icon="history">Historial</h2>
+          <span class="spacer"></span>
+          <button class="btn btn-sm btn-ghost" id="clear-history-btn">Limpiar</button>
+        </div>
+        <ul class="track-list scroll-list" id="history-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <div class="qr-modal hidden" id="qr-modal">
+    <div class="qr-modal-backdrop" id="qr-modal-bg"></div>
+    <div class="card qr-modal-card">
+      <button class="icon-btn close-modal" id="qr-modal-close" title="Cerrar" data-icon="x"></button>
+      <div class="brand" style="justify-content:center;margin-bottom:8px;"><span class="brand-mark" data-icon="music"></span><span>Song<b>Request</b></span></div>
+      <h2 style="font-size:1.4rem;">¡Pide tu canción!</h2>
+      <p class="muted" style="font-size:.86rem;margin:4px 0 14px;">Apunta con la cámara de tu móvil para entrar a la lista de peticiones</p>
+      <div class="qr-huge"><img id="modal-qr-img" src="/qr.svg" alt="Código QR"></div>
+      <div class="share-url" id="modal-share-url" style="margin-top:14px;font-size:1.05rem;">…</div>
+    </div>
+  </div>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>

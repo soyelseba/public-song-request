@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reproductor · SongRequest</title>
+  <meta name="description" content="Reproductor de la fiesta: reproduce la cola de peticiones en el navegador o en el servidor.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎶</text></svg>">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div class="aurora"><span></span><span></span><span></span></div>
+  <div class="backdrop" id="backdrop"></div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="/player"><span class="brand-mark" data-icon="music"></span><span>Song<b>Request</b></span></a>
+      <nav class="nav">
+        <a href="/admin" data-icon="shield"><span>Panel</span></a>
+        <a href="/player" class="active" data-icon="headphones"><span>Reproductor</span></a>
+        <a href="/" target="_blank" data-icon="user"><span>Invitados</span></a>
+      </nav>
+      <span class="spacer"></span>
+      <div class="conn" id="conn-status"><span class="dot"></span><span>Conectando…</span></div>
+    </div>
+  </header>
+
+  <main class="container player-page" id="player-root">
+    <section class="stage" aria-label="Sonando ahora">
+      <div class="cover-wrap"><div class="cover" id="cover"></div></div>
+      <div>
+        <span class="eyebrow" id="stage-eyebrow"><span class="eq"><i></i><i></i><i></i><i></i></span> <span>En espera</span></span>
+        <h1 class="stage-title" id="stage-title">Nada sonando</h1>
+        <div class="stage-artist" id="stage-artist">Esperando peticiones…</div>
+        <div class="stage-by hidden" id="stage-by"></div>
+      </div>
+
+      <div class="seek">
+        <div class="progress" id="seek-bar" title="Saltar"><div class="progress-fill" id="now-progress"></div></div>
+        <div class="times"><span id="now-elapsed">0:00</span><span id="now-duration">0:00</span></div>
+      </div>
+
+      <div class="player-controls">
+        <button class="ctrl" id="stop-btn" title="Detener" data-icon="stop"></button>
+        <button class="ctrl main" id="toggle-btn" title="Reproducir / Pausa (Espacio)"></button>
+        <button class="ctrl" id="next-btn" title="Siguiente (→)" data-icon="next"></button>
+      </div>
+
+      <div class="player-bottom">
+        <div class="segmented" role="group" aria-label="Dónde suena">
+          <button id="mode-browser" data-mode="browser" data-icon="globe">Este navegador</button>
+          <button id="mode-local" data-mode="local" data-icon="server">Servidor</button>
+        </div>
+        <label class="volume" title="Volumen">
+          <span data-icon="volume"></span>
+          <input type="range" id="volume" min="0" max="100" step="1" aria-label="Volumen">
+        </label>
+      </div>
+      <div class="faint" id="mode-hint" style="font-size:.82rem;max-width:520px;"></div>
+    </section>
+
+    <aside class="side">
+      <div class="card">
+        <div class="qr-big">
+          <div class="qr interactive" id="player-qr-box" title="Clic para ver en pantalla completa">
+            <img id="player-qr-img" src="/qr.svg" alt="Código QR para pedir canciones">
+          </div>
+          <div>
+            <span class="eyebrow">Escanea y pide</span>
+            <h3>¿Quieres oír algo?</h3>
+            <div class="share-url muted" id="share-url" style="margin-top:6px;">…</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-icon="list">A continuación</h2>
+          <span class="spacer"></span><span class="count" id="queue-count">0</span>
+        </div>
+        <ul class="track-list scroll-list" id="queue-list" style="max-height: 52vh;"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <div class="unlock hidden" id="unlock">
+    <div class="unlock-card">
+      <div class="big-icon" data-icon="headphones"></div>
+      <h2>Activar el audio</h2>
+      <p>El navegador necesita un clic para poder reproducir sonido en esta pestaña.</p>
+      <button class="btn btn-primary btn-lg" id="unlock-btn" data-icon="play">Activar reproductor</button>
+      <div style="margin-top:16px;"><button class="btn btn-ghost btn-sm" id="unlock-local">o reproducir en el servidor</button></div>
+    </div>
+  </div>
+
+  <div class="qr-modal hidden" id="qr-modal">
+    <div class="qr-modal-backdrop" id="qr-modal-bg"></div>
+    <div class="card qr-modal-card">
+      <button class="icon-btn close-modal" id="qr-modal-close" title="Cerrar" data-icon="x"></button>
+      <div class="brand" style="justify-content:center;margin-bottom:8px;"><span class="brand-mark" data-icon="music"></span><span>Song<b>Request</b></span></div>
+      <h2 style="font-size:1.5rem;">¡Pide tu canción!</h2>
+      <p class="muted" style="font-size:.88rem;margin:4px 0 14px;">Apunta con la cámara de tu móvil para entrar a la lista de peticiones</p>
+      <div class="qr-huge"><img id="modal-qr-img" src="/qr.svg" alt="Código QR"></div>
+      <div class="share-url" id="modal-share-url" style="margin-top:14px;font-size:1.05rem;">…</div>
+    </div>
+  </div>
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/player.js"></script>
+</body>
+</html>

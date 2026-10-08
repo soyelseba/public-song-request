@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceso DJ · SongRequest</title>
+  <meta name="description" content="Acceso de administrador para gestionar peticiones de canciones y el reproductor.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>">
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div class="aurora"><span></span><span></span><span></span></div>
+  <main class="login-wrap">
+    <form class="card login-card stack" id="login-form">
+      <div class="brand"><span class="brand-mark" data-icon="music"></span><span>Song<b>Request</b></span></div>
+      <div>
+        <h1>Cabina del DJ</h1>
+        <p>Introduce la contraseña de administrador</p>
+      </div>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input id="password" class="input" type="password" placeholder="Contraseña" autocomplete="current-password" required autofocus>
+      </div>
+      <button id="login-btn" class="btn btn-primary btn-lg" type="submit">Entrar</button>
+      <a href="/" class="faint" style="text-align:center;font-size:.85rem;">← Volver a la vista de invitados</a>
+    </form>
+  </main>
+  <script src="/static/js/common.js"></script>
+  <script>
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await SR.api('/api/login', { password: document.getElementById('password').value });
+        const next = new URLSearchParams(location.search).get('next') || '/admin';
+        location.href = next.startsWith('/') ? next : '/admin';
+      } catch (err) {
+        form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake');
+        SR.toast(err.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
